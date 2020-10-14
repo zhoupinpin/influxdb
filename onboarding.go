@@ -1,6 +1,9 @@
 package influxdb
 
-import "context"
+import (
+	"context"
+	"time"
+)
 
 // OnboardingService represents a service for the first run.
 type OnboardingService interface {
@@ -29,7 +32,7 @@ type OnboardingRequest struct {
 	Password        string `json:"password"`
 	Org             string `json:"org"`
 	Bucket          string `json:"bucket"`
-	RetentionPeriod uint   `json:"retentionPeriodHrs,omitempty"`
+	RetentionPeriod time.Duration   `json:"retentionPeriodHrs,omitempty"`
 	Token           string `json:"token,omitempty"`
 }
 
