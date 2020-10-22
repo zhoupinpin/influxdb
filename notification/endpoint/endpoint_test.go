@@ -6,25 +6,18 @@ import (
 	"net/http"
 	"net/url"
 	"testing"
-	"time"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/influxdata/influxdb/v2"
 	"github.com/influxdata/influxdb/v2/kit/errors"
-	"github.com/influxdata/influxdb/v2/mock"
 	"github.com/influxdata/influxdb/v2/notification/endpoint"
 	influxTesting "github.com/influxdata/influxdb/v2/testing"
 )
 
-const (
-	id1 = "020f755c3c082000"
-	id3 = "020f755c3c082002"
-)
-
 var goodBase = endpoint.Base{
-	ID:          influxTesting.MustIDBase16Ptr(id1),
+	ID:          id1,
 	Name:        "name1",
-	OrgID:       influxTesting.MustIDBase16Ptr(id3),
+	OrgID:       id3,
 	Status:      influxdb.Active,
 	Description: "desc1",
 }
@@ -48,9 +41,9 @@ func TestValidEndpoint(t *testing.T) {
 			name: "invalid status",
 			src: &endpoint.PagerDuty{
 				Base: endpoint.Base{
-					ID:    influxTesting.MustIDBase16Ptr(id1),
+					ID:    id1,
 					Name:  "name1",
-					OrgID: influxTesting.MustIDBase16Ptr(id3),
+					OrgID: id3,
 				},
 			},
 			err: &influxdb.Error{
@@ -62,12 +55,12 @@ func TestValidEndpoint(t *testing.T) {
 			name: "empty name PagerDuty",
 			src: &endpoint.PagerDuty{
 				Base: endpoint.Base{
-					ID:     influxTesting.MustIDBase16Ptr(id1),
-					OrgID:  influxTesting.MustIDBase16Ptr(id3),
+					ID:     id1,
+					OrgID:  id3,
 					Status: influxdb.Active,
 				},
 				ClientURL:  "https://events.pagerduty.com/v2/enqueue",
-				RoutingKey: influxdb.SecretField{Key: id1 + "-routing-key"},
+				RoutingKey: influxdb.SecretField{Key: id1.String() + "-routing-key"},
 			},
 			err: &influxdb.Error{
 				Code: influxdb.EInvalid,
@@ -78,11 +71,11 @@ func TestValidEndpoint(t *testing.T) {
 			name: "empty name Telegram",
 			src: &endpoint.Telegram{
 				Base: endpoint.Base{
-					ID:     influxTesting.MustIDBase16Ptr(id1),
-					OrgID:  influxTesting.MustIDBase16Ptr(id3),
+					ID:     id1,
+					OrgID:  id3,
 					Status: influxdb.Active,
 				},
-				Token:   influxdb.SecretField{Key: id1 + "-token"},
+				Token:   influxdb.SecretField{Key: id1.String() + "-token"},
 				Channel: "-1001406363649",
 			},
 			err: &influxdb.Error{
@@ -177,7 +170,7 @@ func TestValidEndpoint(t *testing.T) {
 			name: "empty telegram channel",
 			src: &endpoint.Telegram{
 				Base:  goodBase,
-				Token: influxdb.SecretField{Key: id1 + "-token"},
+				Token: influxdb.SecretField{Key: id1.String() + "-token"},
 			},
 			err: &influxdb.Error{
 				Code: influxdb.EInvalid,
@@ -188,7 +181,7 @@ func TestValidEndpoint(t *testing.T) {
 			name: "valid telegram token",
 			src: &endpoint.Telegram{
 				Base:    goodBase,
-				Token:   influxdb.SecretField{Key: id1 + "-token"},
+				Token:   influxdb.SecretField{Key: id1.String() + "-token"},
 				Channel: "-1001406363649",
 			},
 			err: nil,
@@ -208,9 +201,6 @@ func TestValidEndpoint(t *testing.T) {
 	}
 }
 
-var timeGen1 = mock.TimeGenerator{FakeValue: time.Date(2006, time.July, 13, 4, 19, 10, 0, time.UTC)}
-var timeGen2 = mock.TimeGenerator{FakeValue: time.Date(2006, time.July, 14, 5, 23, 53, 10, time.UTC)}
-
 func TestJSON(t *testing.T) {
 	cases := []struct {
 		name string
@@ -220,9 +210,9 @@ func TestJSON(t *testing.T) {
 			name: "simple Slack",
 			src: &endpoint.Slack{
 				Base: endpoint.Base{
-					ID:     influxTesting.MustIDBase16Ptr(id1),
+					ID:     id1,
 					Name:   "name1",
-					OrgID:  influxTesting.MustIDBase16Ptr(id3),
+					OrgID:  id3,
 					Status: influxdb.Active,
 					CRUDLog: influxdb.CRUDLog{
 						CreatedAt: timeGen1.Now(),
@@ -237,9 +227,9 @@ func TestJSON(t *testing.T) {
 			name: "Slack without token",
 			src: &endpoint.Slack{
 				Base: endpoint.Base{
-					ID:     influxTesting.MustIDBase16Ptr(id1),
+					ID:     id1,
 					Name:   "name1",
-					OrgID:  influxTesting.MustIDBase16Ptr(id3),
+					OrgID:  id3,
 					Status: influxdb.Active,
 					CRUDLog: influxdb.CRUDLog{
 						CreatedAt: timeGen1.Now(),
@@ -253,9 +243,9 @@ func TestJSON(t *testing.T) {
 			name: "simple pagerduty",
 			src: &endpoint.PagerDuty{
 				Base: endpoint.Base{
-					ID:     influxTesting.MustIDBase16Ptr(id1),
+					ID:     id1,
 					Name:   "name1",
-					OrgID:  influxTesting.MustIDBase16Ptr(id3),
+					OrgID:  id3,
 					Status: influxdb.Active,
 					CRUDLog: influxdb.CRUDLog{
 						CreatedAt: timeGen1.Now(),
@@ -270,9 +260,9 @@ func TestJSON(t *testing.T) {
 			name: "simple http",
 			src: &endpoint.HTTP{
 				Base: endpoint.Base{
-					ID:     influxTesting.MustIDBase16Ptr(id1),
+					ID:     id1,
 					Name:   "name1",
-					OrgID:  influxTesting.MustIDBase16Ptr(id3),
+					OrgID:  id3,
 					Status: influxdb.Active,
 					CRUDLog: influxdb.CRUDLog{
 						CreatedAt: timeGen1.Now(),
@@ -293,9 +283,9 @@ func TestJSON(t *testing.T) {
 			name: "simple Telegram",
 			src: &endpoint.Telegram{
 				Base: endpoint.Base{
-					ID:     influxTesting.MustIDBase16Ptr(id1),
+					ID:     id1,
 					Name:   "nameTelegram",
-					OrgID:  influxTesting.MustIDBase16Ptr(id3),
+					OrgID:  id3,
 					Status: influxdb.Active,
 					CRUDLog: influxdb.CRUDLog{
 						CreatedAt: timeGen1.Now(),
@@ -331,9 +321,9 @@ func TestBackFill(t *testing.T) {
 			name: "simple Slack",
 			src: &endpoint.Slack{
 				Base: endpoint.Base{
-					ID:     influxTesting.MustIDBase16Ptr(id1),
+					ID:     id1,
 					Name:   "name1",
-					OrgID:  influxTesting.MustIDBase16Ptr(id3),
+					OrgID:  id3,
 					Status: influxdb.Active,
 					CRUDLog: influxdb.CRUDLog{
 						CreatedAt: timeGen1.Now(),
@@ -347,9 +337,9 @@ func TestBackFill(t *testing.T) {
 			},
 			target: &endpoint.Slack{
 				Base: endpoint.Base{
-					ID:     influxTesting.MustIDBase16Ptr(id1),
+					ID:     id1,
 					Name:   "name1",
-					OrgID:  influxTesting.MustIDBase16Ptr(id3),
+					OrgID:  id3,
 					Status: influxdb.Active,
 					CRUDLog: influxdb.CRUDLog{
 						CreatedAt: timeGen1.Now(),
@@ -358,7 +348,7 @@ func TestBackFill(t *testing.T) {
 				},
 				URL: "https://slack.com/api/chat.postMessage",
 				Token: influxdb.SecretField{
-					Key:   id1 + "-token",
+					Key:   id1.String() + "-token",
 					Value: strPtr("token-value"),
 				},
 			},
@@ -367,9 +357,9 @@ func TestBackFill(t *testing.T) {
 			name: "simple pagerduty",
 			src: &endpoint.PagerDuty{
 				Base: endpoint.Base{
-					ID:     influxTesting.MustIDBase16Ptr(id1),
+					ID:     id1,
 					Name:   "name1",
-					OrgID:  influxTesting.MustIDBase16Ptr(id3),
+					OrgID:  id3,
 					Status: influxdb.Active,
 					CRUDLog: influxdb.CRUDLog{
 						CreatedAt: timeGen1.Now(),
@@ -383,9 +373,9 @@ func TestBackFill(t *testing.T) {
 			},
 			target: &endpoint.PagerDuty{
 				Base: endpoint.Base{
-					ID:     influxTesting.MustIDBase16Ptr(id1),
+					ID:     id1,
 					Name:   "name1",
-					OrgID:  influxTesting.MustIDBase16Ptr(id3),
+					OrgID:  id3,
 					Status: influxdb.Active,
 					CRUDLog: influxdb.CRUDLog{
 						CreatedAt: timeGen1.Now(),
@@ -394,7 +384,7 @@ func TestBackFill(t *testing.T) {
 				},
 				ClientURL: "https://events.pagerduty.com/v2/enqueue",
 				RoutingKey: influxdb.SecretField{
-					Key:   id1 + "-routing-key",
+					Key:   id1.String() + "-routing-key",
 					Value: strPtr("routing-key-value"),
 				},
 			},
@@ -403,9 +393,9 @@ func TestBackFill(t *testing.T) {
 			name: "http with token",
 			src: &endpoint.HTTP{
 				Base: endpoint.Base{
-					ID:     influxTesting.MustIDBase16Ptr(id1),
+					ID:     id1,
 					Name:   "name1",
-					OrgID:  influxTesting.MustIDBase16Ptr(id3),
+					OrgID:  id3,
 					Status: influxdb.Active,
 					CRUDLog: influxdb.CRUDLog{
 						CreatedAt: timeGen1.Now(),
@@ -423,9 +413,9 @@ func TestBackFill(t *testing.T) {
 			},
 			target: &endpoint.HTTP{
 				Base: endpoint.Base{
-					ID:     influxTesting.MustIDBase16Ptr(id1),
+					ID:     id1,
 					Name:   "name1",
-					OrgID:  influxTesting.MustIDBase16Ptr(id3),
+					OrgID:  id3,
 					Status: influxdb.Active,
 					CRUDLog: influxdb.CRUDLog{
 						CreatedAt: timeGen1.Now(),
@@ -435,11 +425,11 @@ func TestBackFill(t *testing.T) {
 				AuthMethod: "basic",
 				URL:        "http://example.com",
 				Username: influxdb.SecretField{
-					Key:   id1 + "-username",
+					Key:   id1.String() + "-username",
 					Value: strPtr("username1"),
 				},
 				Password: influxdb.SecretField{
-					Key:   id1 + "-password",
+					Key:   id1.String() + "-password",
 					Value: strPtr("password1"),
 				},
 			},
@@ -448,9 +438,9 @@ func TestBackFill(t *testing.T) {
 			name: "simple Telegram",
 			src: &endpoint.Telegram{
 				Base: endpoint.Base{
-					ID:     influxTesting.MustIDBase16Ptr(id1),
+					ID:     id1,
 					Name:   "name1",
-					OrgID:  influxTesting.MustIDBase16Ptr(id3),
+					OrgID:  id3,
 					Status: influxdb.Active,
 					CRUDLog: influxdb.CRUDLog{
 						CreatedAt: timeGen1.Now(),
@@ -463,9 +453,9 @@ func TestBackFill(t *testing.T) {
 			},
 			target: &endpoint.Telegram{
 				Base: endpoint.Base{
-					ID:     influxTesting.MustIDBase16Ptr(id1),
+					ID:     id1,
 					Name:   "name1",
-					OrgID:  influxTesting.MustIDBase16Ptr(id3),
+					OrgID:  id3,
 					Status: influxdb.Active,
 					CRUDLog: influxdb.CRUDLog{
 						CreatedAt: timeGen1.Now(),
@@ -473,7 +463,7 @@ func TestBackFill(t *testing.T) {
 					},
 				},
 				Token: influxdb.SecretField{
-					Key:   id1 + "-token",
+					Key:   id1.String() + "-token",
 					Value: strPtr("token-value"),
 				},
 			},
@@ -497,9 +487,9 @@ func TestSecretFields(t *testing.T) {
 			name: "simple Slack",
 			src: &endpoint.Slack{
 				Base: endpoint.Base{
-					ID:     influxTesting.MustIDBase16Ptr(id1),
+					ID:     id1,
 					Name:   "name1",
-					OrgID:  influxTesting.MustIDBase16Ptr(id3),
+					OrgID:  id3,
 					Status: influxdb.Active,
 					CRUDLog: influxdb.CRUDLog{
 						CreatedAt: timeGen1.Now(),
@@ -508,13 +498,13 @@ func TestSecretFields(t *testing.T) {
 				},
 				URL: "https://slack.com/api/chat.postMessage",
 				Token: influxdb.SecretField{
-					Key:   id1 + "-token",
+					Key:   id1.String() + "-token",
 					Value: strPtr("token-value"),
 				},
 			},
 			secrets: []influxdb.SecretField{
 				{
-					Key:   id1 + "-token",
+					Key:   id1.String() + "-token",
 					Value: strPtr("token-value"),
 				},
 			},
@@ -523,9 +513,9 @@ func TestSecretFields(t *testing.T) {
 			name: "simple pagerduty",
 			src: &endpoint.PagerDuty{
 				Base: endpoint.Base{
-					ID:     influxTesting.MustIDBase16Ptr(id1),
+					ID:     id1,
 					Name:   "name1",
-					OrgID:  influxTesting.MustIDBase16Ptr(id3),
+					OrgID:  id3,
 					Status: influxdb.Active,
 					CRUDLog: influxdb.CRUDLog{
 						CreatedAt: timeGen1.Now(),
@@ -534,13 +524,13 @@ func TestSecretFields(t *testing.T) {
 				},
 				ClientURL: "https://events.pagerduty.com/v2/enqueue",
 				RoutingKey: influxdb.SecretField{
-					Key:   id1 + "-routing-key",
+					Key:   id1.String() + "-routing-key",
 					Value: strPtr("routing-key-value"),
 				},
 			},
 			secrets: []influxdb.SecretField{
 				{
-					Key:   id1 + "-routing-key",
+					Key:   id1.String() + "-routing-key",
 					Value: strPtr("routing-key-value"),
 				},
 			},
@@ -549,9 +539,9 @@ func TestSecretFields(t *testing.T) {
 			name: "http with user and password",
 			src: &endpoint.HTTP{
 				Base: endpoint.Base{
-					ID:     influxTesting.MustIDBase16Ptr(id1),
+					ID:     id1,
 					Name:   "name1",
-					OrgID:  influxTesting.MustIDBase16Ptr(id3),
+					OrgID:  id3,
 					Status: influxdb.Active,
 					CRUDLog: influxdb.CRUDLog{
 						CreatedAt: timeGen1.Now(),
@@ -561,21 +551,21 @@ func TestSecretFields(t *testing.T) {
 				AuthMethod: "basic",
 				URL:        "http://example.com",
 				Username: influxdb.SecretField{
-					Key:   id1 + "-username",
+					Key:   id1.String() + "-username",
 					Value: strPtr("user1"),
 				},
 				Password: influxdb.SecretField{
-					Key:   id1 + "-password",
+					Key:   id1.String() + "-password",
 					Value: strPtr("password1"),
 				},
 			},
 			secrets: []influxdb.SecretField{
 				{
-					Key:   id1 + "-username",
+					Key:   id1.String() + "-username",
 					Value: strPtr("user1"),
 				},
 				{
-					Key:   id1 + "-password",
+					Key:   id1.String() + "-password",
 					Value: strPtr("password1"),
 				},
 			},
@@ -584,9 +574,9 @@ func TestSecretFields(t *testing.T) {
 			name: "simple Telegram",
 			src: &endpoint.Telegram{
 				Base: endpoint.Base{
-					ID:     influxTesting.MustIDBase16Ptr(id1),
+					ID:     id1,
 					Name:   "name1",
-					OrgID:  influxTesting.MustIDBase16Ptr(id3),
+					OrgID:  id3,
 					Status: influxdb.Active,
 					CRUDLog: influxdb.CRUDLog{
 						CreatedAt: timeGen1.Now(),
@@ -594,13 +584,13 @@ func TestSecretFields(t *testing.T) {
 					},
 				},
 				Token: influxdb.SecretField{
-					Key:   id1 + "-token",
+					Key:   id1.String() + "-token",
 					Value: strPtr("token-value"),
 				},
 			},
 			secrets: []influxdb.SecretField{
 				{
-					Key:   id1 + "-token",
+					Key:   id1.String() + "-token",
 					Value: strPtr("token-value"),
 				},
 			},
