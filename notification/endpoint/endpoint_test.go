@@ -6,21 +6,31 @@ import (
 	"net/http"
 	"net/url"
 	"testing"
+	"time"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/influxdata/influxdb/v2"
 	"github.com/influxdata/influxdb/v2/kit/errors"
+	"github.com/influxdata/influxdb/v2/mock"
 	"github.com/influxdata/influxdb/v2/notification/endpoint"
 	influxTesting "github.com/influxdata/influxdb/v2/testing"
 )
 
-var goodBase = endpoint.Base{
-	ID:          id1,
-	Name:        "name1",
-	OrgID:       id3,
-	Status:      influxdb.Active,
-	Description: "desc1",
-}
+var (
+	id1 = influxTesting.MustIDBase16Ptr("020f755c3c082000")
+	id3 = influxTesting.MustIDBase16Ptr("020f755c3c082002")
+
+	timeGen1 = mock.TimeGenerator{FakeValue: time.Date(2006, time.July, 13, 4, 19, 10, 0, time.UTC)}
+	timeGen2 = mock.TimeGenerator{FakeValue: time.Date(2006, time.July, 14, 5, 23, 53, 10, time.UTC)}
+
+	goodBase = endpoint.Base{
+		ID:          id1,
+		Name:        "name1",
+		OrgID:       id3,
+		Status:      influxdb.Active,
+		Description: "desc1",
+	}
+)
 
 func TestValidEndpoint(t *testing.T) {
 	cases := []struct {
