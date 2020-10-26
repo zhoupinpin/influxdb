@@ -21,5 +21,7 @@ var Migrations = [...]migration.Spec{
 	Migration0006_DeleteBucketSessionsv1,
 	// CreateMetaDataBucket
 	Migration0007_CreateMetaDataBucket,
+	// add index telegraf by org
+	Migration0008_AddIndexTelegrafByOrg,
 	// {{ do_not_edit . }}
 }
